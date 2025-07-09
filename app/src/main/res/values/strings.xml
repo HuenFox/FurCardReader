@@ -9,6 +9,7 @@
     <string name="cardid">Card ID</string>
     <string name="cardtype">CardType</string>
     <string name="atqa">ATQA</string>
+    <string name="status">Status</string>
 
 
 </resources>

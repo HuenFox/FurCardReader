@@ -213,6 +213,7 @@ class MainActivity : AppCompatActivity() {
 //            val response = RetrofitClient.instance.createPost(paramObject.toString())
             if (response.isSuccessful) {
                 val createdPost = response.body()
+                showCompletionDialog(card)
                 // 成功！createdPost 包含了伺服器返回的 Post 物件 (可能包含伺服器生成的 ID)
                 Log.d("ApiService", "Post created successfully: $createdPost")
                 // 在這裡更新 UI 或執行其他操作
@@ -229,6 +230,14 @@ class MainActivity : AppCompatActivity() {
             // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
             Log.e("ApiService", "Exception when creating post: ${e.message}", e)
             // 處理異常
+        }
+    }
+
+    private fun showCompletionDialog(card: Card) {
+        // 檢查 Dialog 是否已在顯示，避免重複顯示
+        if (supportFragmentManager.findFragmentByTag("completion_dialog") == null) {
+            val dialogFragment = CompletionDialogFragment.newInstance(card)
+            dialogFragment.show(supportFragmentManager, "completion_dialog")
         }
     }
 
