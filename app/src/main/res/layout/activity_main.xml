@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="Card ID"
+            android:text="@string/cardid"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
@@ -50,7 +50,7 @@
             android:id="@+id/tvCardID"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text=""
             app:layout_constraintStart_toStartOf="@+id/tvCardType"
             app:layout_constraintTop_toTopOf="@+id/labelCardID" />
 
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="CardType"
+            android:text="@string/cardtype"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelCardID" />
 
@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
             android:layout_marginTop="16dp"
-            android:text="TextView"
+            android:text=""
             app:layout_constraintStart_toEndOf="@+id/labelCardType"
             app:layout_constraintTop_toBottomOf="@+id/tvCardID" />
 
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="ATQA"
+            android:text="@string/atqa"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelCardType" />
 
@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="TextView"
+            android:text=""
             app:layout_constraintStart_toStartOf="@+id/tvCardType"
             app:layout_constraintTop_toBottomOf="@+id/tvCardType" />
 

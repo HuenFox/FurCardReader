@@ -5,6 +5,7 @@ import android.nfc.tech.NfcA
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import tw.frzfox.furcardreader.data.Card
 import java.io.IOException
 
 class MainViewModel : ViewModel() {

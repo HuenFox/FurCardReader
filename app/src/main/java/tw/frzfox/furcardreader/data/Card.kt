@@ -1,4 +1,4 @@
-package tw.frzfox.furcardreader
+package tw.frzfox.furcardreader.data
 
 data class Card(var cardType : String,
     var cardUID : String,
