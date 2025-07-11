@@ -20,7 +20,7 @@ interface ApiService {
     // @GET("posts")
     // suspend fun getAllPostsSuspend(): List<Post>
 
-    @POST("posts") // "posts" 是 API 的端點路徑
+    @POST("posts") //
     suspend fun createPost(@Body postData: Post): Response<Post>
 
     @POST("posts") // 想要自訂Body的時候

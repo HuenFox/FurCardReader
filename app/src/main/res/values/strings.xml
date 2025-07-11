@@ -10,6 +10,9 @@
     <string name="cardtype">CardType</string>
     <string name="atqa">ATQA</string>
     <string name="status">Status</string>
+    <string name="setting">Setting</string>
+    <string name="please_enter_api">請輸入API網址</string>
+    <string name="save">儲存</string>
 
 
 </resources>

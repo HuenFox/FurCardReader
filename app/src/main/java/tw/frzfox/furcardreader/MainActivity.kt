@@ -1,6 +1,7 @@
 package tw.frzfox.furcardreader
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
@@ -13,19 +14,16 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import org.json.JSONException
-import org.json.JSONObject
-import retrofit2.Call
 import tw.frzfox.furcardreader.data.Card
 import tw.frzfox.furcardreader.data.Post
 import tw.frzfox.furcardreader.databinding.ActivityMainBinding
 import tw.frzfox.furcardreader.retrofit.RetrofitClient
-import java.time.LocalDateTime
 
 
 //TODO 我還沒做完(2025.07.08)
@@ -50,6 +48,17 @@ class MainActivity : AppCompatActivity() {
         arrayOf(android.nfc.tech.NfcV::class.java.name),
         arrayOf(android.nfc.tech.NfcBarcode::class.java.name),
     )
+
+    //判斷是否有進設定修改參數
+    val requestSetting = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val url = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE)
+            .getString(RetrofitClient.urlKey, RetrofitClient.defaultUrl) ?: RetrofitClient.defaultUrl
+
+        if (result.resultCode == RESULT_OK) {
+            RetrofitClient.updateURL()
+            Toast.makeText(this, "設定完成", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +99,13 @@ class MainActivity : AppCompatActivity() {
             binding.tvReadError.text = it
         }
 
+        binding.fab.setOnClickListener { view ->
+            requestSetting.launch(Intent(this, SettingsActivity::class.java))
+//            val intent = Intent(this, SettingsActivity::class.java)
+//            startActivity(intent)
+        }
+
+        RetrofitClient.initialize(this)
 
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported", Toast.LENGTH_SHORT).show()
@@ -187,7 +203,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Fetched Post (Coroutine): $post")
     }
 
-    suspend fun postReadCard(card : Card) {
+    private suspend fun postReadCard(card : Card) {
         try {
             val newPost = Post(
                 userId = 1,
