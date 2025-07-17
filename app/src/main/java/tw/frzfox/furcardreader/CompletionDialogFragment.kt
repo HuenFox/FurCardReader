@@ -21,12 +21,13 @@ class CompletionDialogFragment : DialogFragment() {
 
     companion object {
         private const val ARG_CARD_DATA = "card_data"
-
-        fun newInstance(card: Card?): CompletionDialogFragment {
+        private var success = true
+        fun newInstance(success: Boolean, card: Card?): CompletionDialogFragment {
             val fragment = CompletionDialogFragment()
             val args = Bundle()
             args.putParcelable(ARG_CARD_DATA, card) // Card 需要是 Parcelable
             fragment.arguments = args
+            this.success = success
             return fragment
         }
     }

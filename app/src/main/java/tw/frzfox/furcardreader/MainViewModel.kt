@@ -1,11 +1,16 @@
 package tw.frzfox.furcardreader
 
+import android.content.Context
 import android.nfc.Tag
 import android.nfc.tech.NfcA
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import retrofit2.Response
 import tw.frzfox.furcardreader.data.Card
+import tw.frzfox.furcardreader.data.Post
+import tw.frzfox.furcardreader.retrofit.RetrofitClient
 import java.io.IOException
 
 class MainViewModel : ViewModel() {
@@ -74,4 +79,82 @@ class MainViewModel : ViewModel() {
             }
         }
     }
+
+    suspend fun postReadCard(card : Card) :Int{
+        var result = 0
+        try {
+            val newPost = Post(
+                userId = 1,
+                id = 0,
+                title = "Card Read",
+                body = "card.cardType = ${card.cardType},card.cardUID = ${card.cardUID}, card.cardATQA = ${card.cardATQA}, card.maxTransLen = ${card.maxTransLen}, card.timeout = ${card.timeout}"
+            ) // id 通常由伺服器生成，所以可以設為 0 或忽略
+            val response = RetrofitClient.instance.createPost(newPost)
+
+//            如果我要自訂Body的話
+//            var paramObject :JSONObject
+//            try {
+//                paramObject = JSONObject().apply {
+//                    put("cardId", card.cardUID)
+//                    put("cardType", card.cardType)
+//                }
+//
+//            } catch (e: JSONException) {
+//                e.printStackTrace()
+//                return
+//            }
+//
+//            val response = RetrofitClient.instance.createPost(paramObject.toString())
+            if (response.isSuccessful) {
+                val createdPost = response.body()
+                // 成功！createdPost 包含了伺服器返回的 Post 物件 (可能包含伺服器生成的 ID)
+                Log.d("ApiService", "Post created successfully: $createdPost")
+                // 在這裡更新 UI 或執行其他操作
+            } else {
+                // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
+                val errorBody = response.errorBody()?.string() // 獲取錯誤回應的內容
+                Log.e(
+                    "ApiService",
+                    "Error creating post: ${response.code()} - ${response.message()}. Error body: $errorBody"
+                )
+                // 處理錯誤，例如顯示錯誤訊息給使用者
+            }
+            result = response.code()
+        } catch (e: Exception) {
+            // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
+            Log.e("ApiService", "Exception when creating post: ${e.message}", e)
+            // 處理異常
+        }
+        return result
+    }
+
+    suspend fun getReadCard(card: Card): Int {
+        var resultCode = 0
+        try {
+            // 呼叫 ApiService 中的 GET 方法
+            val response = RetrofitClient.instance.getReadCard()
+
+            resultCode = response.code()
+
+            if (response.isSuccessful) {
+                val responseBodyString: String? = response.body() // response.body() 現在是
+                // 成功！cardReadResponse 包含了伺服器返回的數據
+                Log.d(TAG, "GET request successful: $responseBodyString")
+            } else {
+                // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
+                val errorBody = response.errorBody()?.string()
+                Log.e(TAG, "Error in GET request: ${response.code()} - ${response.message()}. Error body: $errorBody")
+                errorMsg.postValue("Error from server (GET): ${response.code()} - ${errorBody ?: response.message()}")
+            }
+        } catch (e: Exception) {
+            // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
+            Log.e(TAG, "Exception during GET request: ${e.message}", e)
+            errorMsg.postValue("Network or other error (GET): ${e.message}")
+            resultCode = -1 // 或其他表示客戶端錯誤的代碼
+        }
+        return resultCode
+    }
+
+
+
 }

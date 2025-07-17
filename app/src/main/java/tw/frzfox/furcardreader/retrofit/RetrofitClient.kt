@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import tw.frzfox.furcardreader.R
 
 object RetrofitClient {
@@ -13,6 +14,7 @@ object RetrofitClient {
     private lateinit var BASE_URL : String
     lateinit var instance: ApiService
     val urlKey : String = "apiUrl"
+    val apiType : String = "POST"
     val defaultUrl : String = "https://jsonplaceholder.typicode.com/"
     // (可選) 建立 OkHttpClient 並加入日誌攔截器
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
@@ -42,6 +44,7 @@ object RetrofitClient {
         instance = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)

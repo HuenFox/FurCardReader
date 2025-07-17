@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.NfcA
@@ -19,11 +20,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import tw.frzfox.furcardreader.data.Card
 import tw.frzfox.furcardreader.data.Post
 import tw.frzfox.furcardreader.databinding.ActivityMainBinding
 import tw.frzfox.furcardreader.retrofit.RetrofitClient
+import tw.frzfox.furcardreader.retrofit.RetrofitClient.apiType
 
 
 //TODO 我還沒做完(2025.07.08)
@@ -67,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        val sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE)
 
         viewModel.cardData.observe(this) {
             binding.tvCardID.text = it.cardUID
@@ -77,7 +81,16 @@ class MainActivity : AppCompatActivity() {
                 // 使用 lifecycleScope 啟動一個協程
                 lifecycleScope.launch {
                     try {
-                        postReadCard(card)
+                        var resultCode = 0
+                        when(sharedPreferences.getString(apiType, "POST")){
+                            "POST" -> resultCode = viewModel.postReadCard(card)
+                            "GET" -> resultCode = viewModel.getReadCard(card)
+                        }
+                        if(resultCode in 200..300){
+                            showCompletionDialog(true, card)
+                        }else{
+                            showCompletionDialog(false, card)
+                        }
                         // 如果 postReadCard 成功，你可以在這裡更新 UI 或顯示提示
                         // 例如：Toast.makeText(this@MainActivity, "Card data posted!", Toast.LENGTH_SHORT).show()
                         // 注意：如果 postReadCard 內部有 UI 更新，需要確保它在主執行緒執行 (例如使用 withContext(Dispatchers.Main))
@@ -101,8 +114,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.fab.setOnClickListener { view ->
             requestSetting.launch(Intent(this, SettingsActivity::class.java))
-//            val intent = Intent(this, SettingsActivity::class.java)
-//            startActivity(intent)
         }
 
         RetrofitClient.initialize(this)
@@ -197,65 +208,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    suspend fun getData() {
-        val post =
-            RetrofitClient.instance.getPostByIdSuspend(1) // 假設 ApiService 有 getPostByIdSuspend
-        Log.d("MainActivity", "Fetched Post (Coroutine): $post")
-    }
-
-    private suspend fun postReadCard(card : Card) {
-        try {
-            val newPost = Post(
-                userId = 1,
-                id = 0,
-                title = "Card Read",
-                body = "card.cardType = ${card.cardType},card.cardUID = ${card.cardUID}, card.cardATQA = ${card.cardATQA}, card.maxTransLen = ${card.maxTransLen}, card.timeout = ${card.timeout}"
-            ) // id 通常由伺服器生成，所以可以設為 0 或忽略
-            val response = RetrofitClient.instance.createPost(newPost)
-
-//            如果我要自訂Body的話
-//            var paramObject :JSONObject
-//            try {
-//                paramObject = JSONObject().apply {
-//                    put("cardId", card.cardUID)
-//                    put("cardType", card.cardType)
-//                }
-//
-//            } catch (e: JSONException) {
-//                e.printStackTrace()
-//                return
-//            }
-//
-//            val response = RetrofitClient.instance.createPost(paramObject.toString())
-            if (response.isSuccessful) {
-                val createdPost = response.body()
-                showCompletionDialog(card)
-                // 成功！createdPost 包含了伺服器返回的 Post 物件 (可能包含伺服器生成的 ID)
-                Log.d("ApiService", "Post created successfully: $createdPost")
-                // 在這裡更新 UI 或執行其他操作
-            } else {
-                // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
-                val errorBody = response.errorBody()?.string() // 獲取錯誤回應的內容
-                Log.e(
-                    "ApiService",
-                    "Error creating post: ${response.code()} - ${response.message()}. Error body: $errorBody"
-                )
-                // 處理錯誤，例如顯示錯誤訊息給使用者
+    fun showCompletionDialog(success: Boolean, card: Card) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            // 檢查 Dialog 是否已在顯示，避免重複顯示
+            if (supportFragmentManager.findFragmentByTag("completion_dialog") == null) {
+                val dialogFragment = CompletionDialogFragment.newInstance(success, card)
+                dialogFragment.show(supportFragmentManager, "completion_dialog")
             }
-        } catch (e: Exception) {
-            // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
-            Log.e("ApiService", "Exception when creating post: ${e.message}", e)
-            // 處理異常
         }
     }
-
-    private fun showCompletionDialog(card: Card) {
-        // 檢查 Dialog 是否已在顯示，避免重複顯示
-        if (supportFragmentManager.findFragmentByTag("completion_dialog") == null) {
-            val dialogFragment = CompletionDialogFragment.newInstance(card)
-            dialogFragment.show(supportFragmentManager, "completion_dialog")
-        }
-    }
-
 
 }

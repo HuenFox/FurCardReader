@@ -25,4 +25,7 @@ interface ApiService {
 
     @POST("posts") // 想要自訂Body的時候
     suspend fun createPost(@Body postBody: String): Response<Post>
+
+    @GET("posts")
+    suspend fun getReadCard(): Response<String>// 假設伺服器會返回一個 CardReadResponse 物件
 }
