@@ -52,12 +52,19 @@ class CompletionDialogFragment : DialogFragment() {
 //        val view = inflater.inflate(R.layout.dialog_completion, container, false)
         binding = DialogCompletionBinding.inflate(layoutInflater)
         // 設定卡片資訊
-        binding.completionTitle.text = "卡片驗證成功！"
+
         card?.let {
             binding.cardIdText.text = "ID: ${it.cardUID}"
             // 您可以根據需要顯示更多 Card 的資訊
         } ?: run {
             binding.cardIdText.visibility = View.GONE
+        }
+        if(success){
+            binding.completionIcon.setImageResource(R.drawable.ic_complete_512)
+            binding.completionTitle.text = "卡片驗證成功！"
+        }else{
+            binding.completionIcon.setImageResource(R.drawable.ic_wrong_512)
+            binding.completionTitle.text = "卡片驗證失敗！"
         }
 
         // 播放進入動畫
