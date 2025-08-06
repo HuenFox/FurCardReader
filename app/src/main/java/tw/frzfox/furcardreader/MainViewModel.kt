@@ -1,13 +1,11 @@
 package tw.frzfox.furcardreader
 
-import android.content.Context
 import android.nfc.Tag
 import android.nfc.tech.NfcA
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import retrofit2.Response
 import tw.frzfox.furcardreader.data.Card
 import tw.frzfox.furcardreader.data.Post
 import tw.frzfox.furcardreader.retrofit.RetrofitClient
@@ -17,6 +15,13 @@ class MainViewModel : ViewModel() {
     private val TAG = MainViewModel::class.java.simpleName
     var cardData = MutableLiveData<Card>()
     var errorMsg = MutableLiveData<String>()
+
+    // 將 cardData 改為 MutableLiveData<List<Card>>
+    private val _cardDataList = MutableLiveData<List<Card>>(emptyList())
+    val cardDataList: LiveData<List<Card>> = _cardDataList
+
+    private val _latestCard = MutableLiveData<Card?>()
+    val latestCard: LiveData<Card?> = _latestCard // 如果外部不需要觀察單個最新卡片，可以設為 private
 
     init {}
 
@@ -42,7 +47,17 @@ class MainViewModel : ViewModel() {
             nfcInfo.append("Max Transceive Length: ${nfcA.maxTransceiveLength} bytes\n")
             nfcInfo.append("Timeout: ${nfcA.timeout} ms\n")
             Log.d(TAG, nfcInfo.toString())
-            cardData.postValue(Card("NfcA", tagIdHex ?: "Empty", atqaHex, "%02X".format(sak), nfcA.maxTransceiveLength, nfcA.timeout))
+            cardData.postValue(
+                Card(
+                    "NfcA",
+                    tagIdHex ?: "Empty",
+                    atqaHex,
+                    "%02X".format(sak),
+                    nfcA.maxTransceiveLength,
+                    nfcA.timeout,
+                    ""
+                )
+            )
             Log.d(TAG, "Showing Tech List")
             tag?.techList?.forEach {
                 Log.d(TAG, "It have : $it")
@@ -68,7 +83,7 @@ class MainViewModel : ViewModel() {
                 e
             )
             errorMsg.postValue("Error communicating with NfcA tag: ${e.localizedMessage}")
-            cardData.postValue(Card("NfcA", "ERROR", "", "", 0, 0))
+            cardData.postValue(Card("NfcA", "ERROR", "", "", 0, 0, ""))
         } finally {
             // 無論成功或失敗，都要記得關閉連接
             try {
@@ -80,7 +95,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun postReadCard(card : Card) :Int{
+    suspend fun postReadCard(card: Card): Int {
         var result = 0
         try {
             val newPost = Post(
@@ -110,6 +125,7 @@ class MainViewModel : ViewModel() {
                 // 成功！createdPost 包含了伺服器返回的 Post 物件 (可能包含伺服器生成的 ID)
                 Log.d("ApiService", "Post created successfully: $createdPost")
                 // 在這裡更新 UI 或執行其他操作
+                card.connectResult = response.code().toString()
             } else {
                 // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
                 val errorBody = response.errorBody()?.string() // 獲取錯誤回應的內容
@@ -118,12 +134,15 @@ class MainViewModel : ViewModel() {
                     "Error creating post: ${response.code()} - ${response.message()}. Error body: $errorBody"
                 )
                 // 處理錯誤，例如顯示錯誤訊息給使用者
+                card.connectResult = errorBody ?: response.message() ?: "Response unsuccessful"
             }
             result = response.code()
         } catch (e: Exception) {
             // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
             Log.e("ApiService", "Exception when creating post: ${e.message}", e)
-            // 處理異常
+            card.connectResult = e.message ?: "Unknown error"
+        } finally {
+            addCard(card)
         }
         return result
     }
@@ -140,21 +159,33 @@ class MainViewModel : ViewModel() {
                 val responseBodyString: String? = response.body() // response.body() 現在是
                 // 成功！cardReadResponse 包含了伺服器返回的數據
                 Log.d(TAG, "GET request successful: $responseBodyString")
+                card.connectResult = responseBodyString ?: ""
             } else {
                 // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
                 val errorBody = response.errorBody()?.string()
-                Log.e(TAG, "Error in GET request: ${response.code()} - ${response.message()}. Error body: $errorBody")
+                Log.e(
+                    TAG,
+                    "Error in GET request: ${response.code()} - ${response.message()}. Error body: $errorBody"
+                )
                 errorMsg.postValue("Error from server (GET): ${response.code()} - ${errorBody ?: response.message()}")
+                card.connectResult = errorBody ?: response.message()
             }
         } catch (e: Exception) {
             // 網路錯誤或其他異常 (例如 JSON 解析錯誤)
             Log.e(TAG, "Exception during GET request: ${e.message}", e)
             errorMsg.postValue("Network or other error (GET): ${e.message}")
             resultCode = -1 // 或其他表示客戶端錯誤的代碼
+            card.connectResult = e.message ?: "Unknown error"
+        } finally {
+            addCard(card)
         }
         return resultCode
     }
 
-
+    private fun addCard(card: Card) {
+        val currentList = _cardDataList.value.orEmpty().toMutableList()
+        currentList.add(card)
+        _cardDataList.value = currentList
+    }
 
 }

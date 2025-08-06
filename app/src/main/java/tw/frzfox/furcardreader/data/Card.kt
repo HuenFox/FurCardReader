@@ -10,5 +10,5 @@ data class Card(var cardType : String,
     var cardSAK : String,
     var maxTransLen : Int,
     var timeout : Int,
-    ) : Parcelable {
-}
+    var connectResult: String,
+    ) : Parcelable

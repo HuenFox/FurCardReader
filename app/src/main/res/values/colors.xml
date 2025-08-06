@@ -1,5 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors -->
+    <color name="md_theme_primary">#3F51B5</color> <!-- Indigo 500 -->
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#C5CAE9</color> <!-- Indigo 100 -->
+    <color name="md_theme_onPrimaryContainer">#1A237E</color> <!-- Indigo 900 -->
+
+    <!-- Secondary Colors -->
+    <color name="md_theme_secondary">#009688</color> <!-- Teal 500 -->
+    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <color name="md_theme_secondaryContainer">#B2DFDB</color> <!-- Teal 100 -->
+    <color name="md_theme_onSecondaryContainer">#004D40</color> <!-- Teal 900 -->
+
+    <!-- Tertiary Colors (Optional, for extra accents) -->
+    <color name="md_theme_tertiary">#FFC107</color> <!-- Amber 500 -->
+    <color name="md_theme_onTertiary">#000000</color>
+    <color name="md_theme_tertiaryContainer">#FFECB3</color> <!-- Amber 100 -->
+    <color name="md_theme_onTertiaryContainer">#FF6F00</color> <!-- Amber 900 -->
+
+    <!-- Error Colors -->
+    <color name="md_theme_error">#B00020</color>
+    <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_errorContainer">#FDECEA</color>
+    <color name="md_theme_onErrorContainer">#B00020</color>
+
+    <!-- Background Colors -->
+    <color name="md_theme_background">#FFFFFF</color> <!-- Light theme background -->
+    <color name="md_theme_onBackground">#1C1B1F</color> <!-- Text on light background -->
+
+    <!-- Surface Colors -->
+    <color name="md_theme_surface">#FFFFFF</color> <!-- Light theme surface (cards, dialogs) -->
+    <color name="md_theme_onSurface">#1C1B1F</color> <!-- Text on light surface -->
+    <color name="md_theme_surfaceVariant">#E0E0E0</color> <!-- Slightly different surface -->
+    <color name="md_theme_onSurfaceVariant">#424242</color> <!-- Text on surface variant -->
+    <color name="md_theme_outline">#757575</color> <!-- Outlines, dividers -->
+
+    <!-- Inverse Colors (Useful for specific components needing inverted theme colors) -->
+    <color name="md_theme_inverseSurface">#313033</color>
+    <color name="md_theme_inverseOnSurface">#F4EFF4</color>
+    <color name="md_theme_inversePrimary">#A8C7FA</color> <!-- Light blue for dark theme primary -->
+
+    <!-- Specific for Status Bar (can reference other colors) -->
+    <color name="status_bar_color_light">@color/md_theme_primary</color> <!-- Or a darker variant like md_theme_primaryContainer if primary is too light -->
+    <color name="status_bar_color_dark">#000000</color> <!-- Often black or very dark for dark themes -->
+
+    <!-- Dark Theme Specific Overrides (place in res/values-night/colors.xml) -->
+    <!--
+    <color name="md_theme_primary">#A8C7FA</color>
+    <color name="md_theme_onPrimary">#003062</color>
+    <color name="md_theme_primaryContainer">#004788</color>
+    <color name="md_theme_onPrimaryContainer">#D4E3FF</color>
+
+    <color name="md_theme_secondary">#B8C9E0</color>
+    <color name="md_theme_onSecondary">#253140</color>
+    <color name="md_theme_secondaryContainer">#3B4858</color>
+    <color name="md_theme_onSecondaryContainer">#D4E3F8</color>
+
+    <color name="md_theme_tertiary">#D7BFA0</color>
+    <color name="md_theme_onTertiary">#3A2D10</color>
+    <color name="md_theme_tertiaryContainer">#524325</color>
+    <color name="md_theme_onTertiaryContainer">#F4DBBB</color>
+
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+
+    <color name="md_theme_background">#1C1B1F</color>
+    <color name="md_theme_onBackground">#E6E1E5</color>
+    <color name="md_theme_surface">#1C1B1F</color>
+    <color name="md_theme_onSurface">#E6E1E5</color>
+    <color name="md_theme_surfaceVariant">#49454F</color>
+    <color name="md_theme_onSurfaceVariant">#CAC4D0</color>
+    <color name="md_theme_outline">#938F99</color>
+
+    <color name="md_theme_inverseSurface">#E6E1E5</color>
+    <color name="md_theme_inverseOnSurface">#1C1B1F</color>
+    <color name="md_theme_inversePrimary">#3F51B5</color>
+    -->
 </resources>
