@@ -125,7 +125,7 @@ class MainViewModel : ViewModel() {
                 // 成功！createdPost 包含了伺服器返回的 Post 物件 (可能包含伺服器生成的 ID)
                 Log.d("ApiService", "Post created successfully: $createdPost")
                 // 在這裡更新 UI 或執行其他操作
-                card.connectResult = response.code().toString()
+                card.connectResult = "[Success] " + response.code().toString()
             } else {
                 // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
                 val errorBody = response.errorBody()?.string() // 獲取錯誤回應的內容
@@ -159,7 +159,7 @@ class MainViewModel : ViewModel() {
                 val responseBodyString: String? = response.body() // response.body() 現在是
                 // 成功！cardReadResponse 包含了伺服器返回的數據
                 Log.d(TAG, "GET request successful: $responseBodyString")
-                card.connectResult = responseBodyString ?: ""
+                card.connectResult = ("[Success] $responseBodyString") ?: ""
             } else {
                 // API 呼叫成功，但伺服器返回了錯誤狀態碼 (例如 400, 404, 500)
                 val errorBody = response.errorBody()?.string()
@@ -184,7 +184,7 @@ class MainViewModel : ViewModel() {
 
     private fun addCard(card: Card) {
         val currentList = _cardDataList.value.orEmpty().toMutableList()
-        currentList.add(card)
+        currentList.add(0, card) //新的插入在第一個
         _cardDataList.value = currentList
     }
 

@@ -17,13 +17,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +48,8 @@ import tw.frzfox.furcardreader.retrofit.RetrofitClient
 import tw.frzfox.furcardreader.retrofit.RetrofitClient.apiType
 import tw.frzfox.furcardreader.ui.theme.FurCardReaderTheme
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 
 //TODO 我還沒做完(2025.07.08)
@@ -268,29 +276,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 單個卡片資訊的 Composable (之前我們討論過的)
     @Composable
     fun CardInfoComposable(card: Card, modifier: Modifier = Modifier) {
         androidx.compose.material3.Card(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            colors = CardDefaults.cardColors(
+                containerColor = when (card.connectResult.startsWith("[Success]")) {
+                    true -> colorResource(id = R.color.md_theme_inversePrimary).copy(alpha = 0.4f)
+                    false -> colorResource(id = R.color.md_theme_error).copy(alpha = 0.4f)
+                },
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
+                    .background(Color.Transparent)
+                    .padding(16.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Card Info",
+                        text = "刷卡結果",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f)
                     )
-                    // 你可以在這裡加入一個圖示或其他元素
+                    Icon(
+                        imageVector = if (card.connectResult.startsWith("[Success]")) {
+                            Icons.Filled.Check
+                        } else {
+                            Icons.Filled.Close
+                        },
+
+                        contentDescription = "Favorite Icon", // 無障礙描述
+                        modifier = Modifier.size(24.dp), // 可選：設定圖示大小
+                        tint = MaterialTheme.colorScheme.primary // 可選：設定圖示顏色，預設為 LocalContentColor
+                    )
                 }
                 Text(
                     text = "Card UID = ${card.cardUID}",
